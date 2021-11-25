@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -45,7 +46,22 @@ public class PostActivity extends AppCompatActivity {
         binding.recyclerView.setAdapter(dataAdapter);
         binding.recyclerView.setItemViewCacheSize(50);
 
+        binding.save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (binding.text.getText().toString().trim().isEmpty()) {
+                    binding.text.setError("Enter text");
+                } else {
+                    String editValue = binding.text.getText().toString().toString();
+                    singleTonExample singletonexample = singleTonExample.getInstance();
+                    singletonexample.setText(editValue);
+                    Toast.makeText(PostActivity.this, singletonexample.getText(), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
         getData(page, limit);
+//        getData2(page, limit);
 
         binding.searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -128,5 +144,43 @@ public class PostActivity extends AppCompatActivity {
                 Log.e("t.getMessage()", t.getMessage());
             }
         });
+    }
+
+    private void getData2(int page, int limit) {
+        RetrofitClient.getInstance().getMyApi()
+                .getPost()
+                .flatMapIterable(list -> list)
+                .flatMap(posts -> {
+                    postsArrayList.add(posts);
+                    dataAdapter.notifyDataSetChanged();
+                    return null;
+                })
+                .subscribe();
+
+//        Call<List<Posts>> call = RetrofitClient.getInstance().getMyApi().getAllPost();
+//        call.enqueue(new Callback<List<Posts>>() {
+//            @Override
+//            public void onResponse(Call<List<Posts>> call, Response<List<Posts>> response) {
+//                try {
+//                    if (response.isSuccessful() && response.body() != null) {
+//                        binding.progressBar.setVisibility(View.GONE);
+//                        List<Posts> arrayList = response.body();
+//                        postsArrayList.addAll(arrayList);
+//                        Log.e("response", arrayList.toString());
+//                        dataAdapter.notifyDataSetChanged();
+//
+//                    } else {
+//                        Log.e("Call", call.toString());
+//                    }
+//                } catch (NullPointerException w) {
+//                    Log.e("NullPointerException", "response.body().toString()");
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<Posts>> call, Throwable t) {
+//                Log.e("t.getMessage()", t.getMessage());
+//            }
+//        });
     }
 }
