@@ -3,6 +3,7 @@ jsonData fetching
 
 
 volley
+retrofit api client
 json
 viewBinding
 searchBar
